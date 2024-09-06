@@ -9,3 +9,6 @@ sam[ple]
 nwe line
 
 stage
+
+
+sudo
