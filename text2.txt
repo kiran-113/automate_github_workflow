@@ -7,3 +7,5 @@ sam[ple]
 
 
 nwe line
+
+stage
