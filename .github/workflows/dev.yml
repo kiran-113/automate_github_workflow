@@ -1,25 +1,23 @@
 # .github/workflows/dev.yml
-
 name: Dev Environment Workflow
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
-      pr_number:
-        description: 'The pull request number'
+      branch:
+        description: 'The branch to deploy'
         required: true
-        type: string
 
 jobs:
-  build_and_test_dev:
+  run_dev_tasks:
     runs-on: ubuntu-latest
+    if: inputs.branch == 'main'
 
     steps:
-    - name: Checkout code
+    - name: Checkout the repository
       uses: actions/checkout@v2
 
-    - name: Run unit tests for dev
-      run: echo "Running unit tests for PR #${{ inputs.pr_number }}"
-
-    - name: Build for dev
-      run: echo "Building for the development environment"
+    - name: Run dev-specific tasks
+      run: |
+        echo "Running tasks specific to the dev environment."
+        # Add your development-specific commands here
