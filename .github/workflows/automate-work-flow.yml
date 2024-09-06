@@ -1,5 +1,5 @@
 # .github/workflows/main_pipeline.yml
-name: CI/CD Pipeline with Main Branch Updates
+name: CI/CD Pipeline with Branch-Specific Workflows
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ on:
       - 'test'
       - 'prod'
     types:
-      - closed  # Trigger on PR close event to check if merged
+      - closed
 
 jobs:
   handle_pr_merge:
@@ -38,40 +38,10 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: git push origin main
 
-    # Optionally, trigger further workflows based on conditions or via API calls
-    - name: Trigger subsequent workflow via GitHub API
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    # Trigger the Dev Workflow
+    - name: Trigger Dev Workflow via GitHub API
       run: |
-        BRANCH="${GITHUB_REF##*/}"
-        REPO_OWNER=${{ github.repository_owner }}
-        REPO_NAME=$(basename ${{ github.repository }})
-
-        if [[ "$BRANCH" == "dev" ]]; then
-          echo "Triggering Dev workflow"
-          curl -X POST -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/actions/workflows/dev.yml/dispatches \
-            -d '{"ref": "main"}'
-
-        elif [[ "$BRANCH" == "stage" ]]; then
-          echo "Triggering Stage workflow"
-          curl -X POST -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/actions/workflows/stage.yml/dispatches \
-            -d '{"ref": "main"}'
-
-        elif [[ "$BRANCH" == "test" ]]; then
-          echo "Triggering Test workflow"
-          curl -X POST -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/actions/workflows/test.yml/dispatches \
-            -d '{"ref": "main"}'
-
-        elif [[ "$BRANCH" == "prod" ]]; then
-          echo "Triggering Prod workflow"
-          curl -X POST -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
-            https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/actions/workflows/prod.yml/dispatches \
-            -d '{"ref": "main"}'
-        fi
+        curl -X POST -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/${{ github.repository }}/actions/workflows/dev.yml/dispatches \
+          -d '{"ref": "main", "inputs": {"branch": "main"}}'
