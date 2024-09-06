@@ -1,5 +1,5 @@
 # .github/workflows/dev.yml
-name: Stage Environment Workflow
+name: Test Environment Workflow
 
 on:
   workflow_dispatch:
