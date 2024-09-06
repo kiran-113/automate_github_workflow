@@ -11,7 +11,7 @@ on:
 jobs:
   run_dev_tasks:
     runs-on: ubuntu-latest
-    if: inputs.branch == 'main'
+    if: ${{ github.event.inputs.branch == 'main' }}
 
     steps:
     - name: Checkout the repository
