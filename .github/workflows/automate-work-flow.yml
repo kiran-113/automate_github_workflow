@@ -1,0 +1,122 @@
+# .github/workflows/main_pipeline.yml
+name: CI/CD Pipeline with Branch-Specific Workflows
+
+on:
+  pull_request:
+    branches:
+      - 'dev'
+      - 'stage'
+      - 'test'
+      - 'prod'
+    types:
+      - closed
+
+jobs:
+  handle_pr_merge:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v2
+
+    - name: Configure git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Fetch all branches
+      run: git fetch origin +refs/heads/*:refs/remotes/origin/*
+
+    - name: Merge changes into main
+      run: |
+        git checkout main
+        git merge --no-ff origin/${{ github.event.pull_request.base.ref }} --allow-unrelated-histories
+
+    - name: Push changes to main branch
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: git push origin main
+
+    # Determine which environment workflows to trigger
+    - name: Trigger Environment Workflows
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        TRIGGER_WORKFLOW() {
+          WORKFLOW_FILE=$1
+          echo "Triggering $WORKFLOW_FILE workflow"
+          curl -X POST -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/$WORKFLOW_FILE/dispatches \
+            -d '{"ref": "main", "inputs": {"branch": "main"}}'
+        }
+        
+        BRANCH="${GITHUB_REF##*/}"
+
+        case "$BRANCH" in
+          "dev")
+            TRIGGER_WORKFLOW "dev.yml"
+            ;;
+          "stage")
+            TRIGGER_WORKFLOW "stage.yml"
+            ;;
+          "test")
+            TRIGGER_WORKFLOW "test.yml"
+            ;;
+          "prod")
+            TRIGGER_WORKFLOW "prod.yml"
+            ;;
+          *)
+            echo "No specific environment workflow to trigger for branch: $BRANCH"
+            ;;
+        esac
+
+
+# # .github/workflows/main_pipeline.yml
+# name: CI/CD Pipeline with Branch-Specific Workflows
+
+# on:
+#   pull_request:
+#     branches:
+#       - 'dev'
+#       - 'stage'
+#       - 'test'
+#       - 'prod'
+#     types:
+#       - closed
+
+# jobs:
+#   handle_pr_merge:
+#     if: github.event.pull_request.merged == true
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     - name: Checkout the repository
+#       uses: actions/checkout@v2
+
+#     - name: Configure git
+#       run: |
+#         git config user.name "github-actions[bot]"
+#         git config user.email "github-actions[bot]@users.noreply.github.com"
+
+#     - name: Fetch all branches
+#       run: git fetch origin +refs/heads/*:refs/remotes/origin/*
+
+#     - name: Merge changes into main
+#       run: |
+#         git checkout main
+#         git merge --no-ff origin/${{ github.event.pull_request.base.ref }} --allow-unrelated-histories
+
+#     - name: Push changes to main branch
+#       env:
+#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#       run: git push origin main
+
+#     # Trigger the Dev Workflow
+#     - name: Trigger Dev Workflow via GitHub API
+#       run: |
+#         curl -X POST -H "Accept: application/vnd.github.v3+json" \
+#           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+#           https://api.github.com/repos/${{ github.repository }}/actions/workflows/dev.yml/dispatches \
+#           -d '{"ref": "main", "inputs": {"branch": "main"}}'
