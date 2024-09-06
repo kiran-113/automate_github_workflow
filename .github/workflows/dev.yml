@@ -1,0 +1,25 @@
+# .github/workflows/dev.yml
+
+name: Dev Environment Workflow
+
+on:
+  workflow_call:
+    inputs:
+      pr_number:
+        description: 'The pull request number'
+        required: true
+        type: string
+
+jobs:
+  build_and_test_dev:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Run unit tests for dev
+      run: echo "Running unit tests for PR #${{ inputs.pr_number }}"
+
+    - name: Build for dev
+      run: echo "Building for the development environment"
