@@ -1,0 +1,23 @@
+# .github/workflows/dev.yml
+name: Stage Environment Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'The branch to deploy'
+        required: true
+
+jobs:
+  run_dev_tasks:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.branch == 'main' }}
+
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v2
+
+    - name: Run dev-specific tasks
+      run: |
+        echo "Running tasks specific to the dev environment."
+        # Add your development-specific commands here
