@@ -5,61 +5,56 @@ name: CI/CD Pipeline with Main Branch Updates
 on:
   pull_request:
     branches:
-      - dev
-      - stage
-      - test
-      - prod
+      - 'dev'
+      - 'stage'
+      - 'test'
+      - 'prod'
     types:
-      - closed  # Trigger on PR close event to check if merged
+      - closed  # Trigger on PR close event, to check if merged
 
 jobs:
-  merge_to_main:
+  handle_pr_merge:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout main branch
+    - name: Checkout the repository
       uses: actions/checkout@v2
-      with:
-        ref: main
 
-    - name: Fetch source branch of the PR
-      run: git fetch origin ${{ github.event.pull_request.head.ref }}:pr_branch
+    - name: Configure git
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
 
-    - name: Attempt to merge
-      id: merge
+    - name: Fetch all branches
+      run: git fetch origin +refs/heads/*:refs/remotes/origin/*
+
+    - name: Merge changes into main
       run: |
         git checkout main
-        git merge --no-ff pr_branch || echo "::set-output name=conflict::true"
+        git merge --no-ff origin/${{ github.event.pull_request.base.ref }}
 
-    - name: Handle Conflicts
-      if: steps.merge.outputs.conflict == 'true'
-      run: echo "Merge conflict detected. Manual resolution required."
-
-    - name: Attempt to push changes
-      if: steps.merge.outputs.conflict != 'true'
+    - name: Push changes to main branch
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        git push origin main
+      run: git push origin main
 
-    # Add environment-specific tasks here after a successful merge
+    # Handle specific branch operations after the merge
     - name: Trigger environment workflows
-      if: steps.merge.outputs.conflict != 'true'
       run: |
         if [[ "${GITHUB_REF##*/}" == "dev" ]]; then
           echo "Running dev-specific tasks after merge"
-          # Add your dev-specific tasks here
+          # Placeholder for dev-specific tasks or use `./github/workflows/dev.yml`
 
         elif [[ "${GITHUB_REF##*/}" == "stage" ]]; then
           echo "Running stage-specific tasks after merge"
-          # Add your stage-specific tasks here
+          # Placeholder for stage-specific tasks or use `./github/workflows/stage.yml`
 
         elif [[ "${GITHUB_REF##*/}" == "test" ]]; then
           echo "Running test environment tasks after merge"
-          # Add your test-specific tasks here
+          # Placeholder for test-specific tasks or use `./github/workflows/test.yml`
 
         elif [[ "${GITHUB_REF##*/}" == "prod" ]]; then
           echo "Running production deployment tasks after merge"
-          # Add your prod-specific tasks here
+          # Placeholder for prod-specific tasks or use `./github/workflows/prod.yml`
         fi
