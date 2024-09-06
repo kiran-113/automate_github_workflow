@@ -44,7 +44,7 @@ jobs:
       run: |
         if [[ "${GITHUB_REF##*/}" == "dev" ]]; then
           echo "Running dev-specific tasks after merge"
-          # Placeholder for dev-specific tasks or use `./github/workflows/dev.yml`
+          './github/workflows/dev.yml'
 
         elif [[ "${GITHUB_REF##*/}" == "stage" ]]; then
           echo "Running stage-specific tasks after merge"
