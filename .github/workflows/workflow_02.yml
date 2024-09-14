@@ -17,5 +17,3 @@ jobs:
 
       - name: Display input
         run: echo "Received input is: ${{ github.event.inputs.some_input }}"
-
-      # Add your additional steps here
