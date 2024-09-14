@@ -1,22 +1,19 @@
 name: workflow_01
+
 on:
+  schedule:
+    # This cron syntax triggers the workflow every minute
+    - cron: '*/1 * * * *'
   workflow_dispatch:
-     inputs:
+    inputs:
       workflow_02:
-        description: 'ًWorkflow 2 which will be triggered'
+        description: 'Workflow 2 which will be triggered'
         required: true
         default: 'workflow_02'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: Test
-        run: |
-          curl -X POST https://api.github.com/repos/:userName/:repoName/dispatches \
-          -H 'Accept: application/vnd.github.everest-preview+json' \
-          -u ${{ secrets.GITHUB_TOKEN }} \
-          --data '{"event_type": "Trigger Workflow", "client_payload": { "repository": "'"$GITHUB_REPOSITORY"'" }}'
-      - uses: actions/checkout@v3        
+      - name: Print input
+        run: echo "Triggered Workflow 2: ${{ github.event.inputs.workflow_02 }}"
