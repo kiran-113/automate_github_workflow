@@ -2,18 +2,10 @@ name: workflow_02
 
 on:
   workflow_dispatch:
-    inputs:
-      some_input:
-        description: 'An example input parameter'
-        required: false
-        default: 'default_value'
 
 jobs:
   execute:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v2
-
-      - name: Display input
-        run: echo "Received input is: ${{ github.event.inputs.some_input }}"
+      - name: Display message
+        run: echo "This is workflow 02 triggered by workflow dispatch."
