@@ -4,24 +4,52 @@ on:
   schedule:
     - cron: '*/1 * * * *'  # Adjust as needed based on your requirements
   workflow_dispatch:
-    inputs:
-      workflow_02:
-        description: 'Trigger to run Workflow 2'
-        required: true
-        default: 'workflow_02'
 
 jobs:
   trigger_workflow_02:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger workflow_02
+      - name: Trigger Environment Workflows
         env:
-          TOKEN: ${{ secrets.GH_TOKEN }}
-          REPO: kiran-113/automate_github_workflow  # Your repository name
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          curl -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $TOKEN" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/$REPO/actions/workflows/workflow_02.yml/dispatches \
-            -d '{"ref":"main"}'
+          TRIGGER_WORKFLOW() {
+            WORKFLOW_FILE=$1
+            echo "Triggering $WORKFLOW_FILE workflow"
+            curl -X POST -H "Accept: application/vnd.github.v3+json" \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              https://api.github.com/repos/${{ github.repository }}/actions/workflows/$WORKFLOW_FILE/dispatches \
+              -d '{"ref": "main"}'
+          }
+
+          # Call the function with the workflow file name you want to trigger
+          TRIGGER_WORKFLOW "workflow_02.yml"
+
+
+# name: workflow_01
+
+# on:
+#   schedule:
+#     - cron: '*/1 * * * *'  # Adjust as needed based on your requirements
+#   workflow_dispatch:
+#     inputs:
+#       workflow_02:
+#         description: 'Trigger to run Workflow 2'
+#         required: true
+#         default: 'workflow_02'
+
+# jobs:
+#   trigger_workflow_02:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Trigger workflow_02
+#         env:
+#           TOKEN: ${{ secrets.GH_TOKEN }}
+#           REPO: kiran-113/automate_github_workflow  # Your repository name
+#         run: |
+#           curl -X POST \
+#             -H "Accept: application/vnd.github+json" \
+#             -H "Authorization: Bearer $TOKEN" \
+#             -H "X-GitHub-Api-Version: 2022-11-28" \
+#             https://api.github.com/repos/$REPO/actions/workflows/workflow_02.yml/dispatches \
+#             -d '{"ref":"main"}'
