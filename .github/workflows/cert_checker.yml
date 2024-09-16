@@ -2,8 +2,8 @@ name: SSL Cert Checker
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # This runs daily at midnight UTC
-  workflow_dispatch:  # Allows manual triggering from the GitHub Actions UI
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+  workflow_dispatch:  # Allows manual triggering from GitHub Actions UI
 
 jobs:
   check_ssl:
@@ -13,13 +13,25 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v2
 
-      - name: Set up SSL Cert Checker
+      - name: Set up Python Environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'  # Ensure this matches your Python version requirement
+
+      - name: Install HTML to Image Dependencies
         run: |
-          git clone https://github.com/kiran-113/ssl-cert-checker.git ssl-cert-checker
-          cd ssl-cert-checker
-          chmod +x ssl-cert-checker.sh  # Ensure the script is executable
+          sudo apt-get update
+          sudo apt-get install -y wkhtmltopdf
+          pip install imgkit
 
       - name: Run SSL Cert Checker
         run: |
-          cd ssl-cert-checker
-          ./ssl-cert-checker.sh https://mktg-stage.verily.com  
+          chmod +x ./scripts/ssl_checker.sh
+          ./scripts/ssl_checker.sh -f ./scripts/sitelist -o terminal
+        shell: bash
+
+      - name: Convert HTML to Image
+        run: python3 ./scripts/html2img.py ./scripts/cert_check.html ./scripts/cert_check.png
+      
+      - name: View Results
+        run: cat ./scripts/cert_check.html
