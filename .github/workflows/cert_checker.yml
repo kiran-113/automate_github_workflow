@@ -16,15 +16,22 @@ jobs:
       - name: Set up Python Environment
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'  # Ensure this matches your Python version requirement
+          python-version: '3.x'
 
-      - name: Prepare sitelist
+      - name: Prepare Environment
+        run: mkdir -p ./scripts
+
+      - name: Generate sitelist
+        run: echo "github.com:443" > ./scripts/sitelist
+
+      - name: Debugging Step
         run: |
-          # Generate sitelist for demonstration purposes
-          echo "github.com:443" > ./scripts/sitelist
-          # Replace above line with actual sitelist download or generation
-          # e.g., curl -o ./scripts/sitelist http://example.com/sitelist
-
+          echo "Current directory: ${PWD}"
+          echo "Listing contents of scripts directory:"
+          ls -la ./scripts
+          echo "Contents of sitelist:"
+          cat ./scripts/sitelist
+          
       - name: Install HTML to Image Dependencies
         run: |
           sudo apt-get update
@@ -42,3 +49,5 @@ jobs:
 
       - name: View Results
         run: cat ./scripts/cert_check.html
+
+
