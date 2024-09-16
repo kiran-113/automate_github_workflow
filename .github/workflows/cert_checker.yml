@@ -18,6 +18,13 @@ jobs:
         with:
           python-version: '3.x'  # Ensure this matches your Python version requirement
 
+      - name: Prepare sitelist
+        run: |
+          # Generate sitelist for demonstration purposes
+          echo "github.com:443" > ./scripts/sitelist
+          # Replace above line with actual sitelist download or generation
+          # e.g., curl -o ./scripts/sitelist http://example.com/sitelist
+
       - name: Install HTML to Image Dependencies
         run: |
           sudo apt-get update
@@ -32,6 +39,6 @@ jobs:
 
       - name: Convert HTML to Image
         run: python3 ./scripts/html2img.py ./scripts/cert_check.html ./scripts/cert_check.png
-      
+
       - name: View Results
         run: cat ./scripts/cert_check.html
