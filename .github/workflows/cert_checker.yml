@@ -1,0 +1,25 @@
+name: SSL Cert Checker
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # This runs daily at midnight UTC
+  workflow_dispatch:  # Allows manual triggering from the GitHub Actions UI
+
+jobs:
+  check_ssl:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v2
+
+      - name: Set up SSL Cert Checker
+        run: |
+          git clone https://github.com/kiran-113/ssl-cert-checker.git ssl-cert-checker
+          cd ssl-cert-checker
+          chmod +x ssl-cert-checker.sh  # Ensure the script is executable
+
+      - name: Run SSL Cert Checker
+        run: |
+          cd ssl-cert-checker
+          ./ssl-cert-checker.sh https://mktg-stage.verily.com  
