@@ -2,7 +2,7 @@ name: workflow_01
 
 on:
   schedule:
-    - cron: '*/1 * * * *'  # Adjust as needed based on your requirements
+   - cron: '0 0 1 1 *'        #'*/1 * * * *'  # Adjust as needed based on your requirements
   workflow_dispatch:
 
 jobs:
